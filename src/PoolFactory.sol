@@ -21,7 +21,8 @@ contract PoolFactory {
             _name,
             _ownerFee,
             _waitingPeriod,
-            _maxCoverageAmount
+            _maxCoverageAmount,
+            msg.sender
         );
 
         poolList.push(PoolInfo(address(newPool), msg.sender, _name));
