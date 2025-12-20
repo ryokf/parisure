@@ -25,15 +25,16 @@ contract ParisurePool {
         i_owner = owner;
     }
 
-    uint256 private s_policyCount = 0;
-    mapping(uint256 idPolicy => PoolLib.Policy) s_policyList;
+    uint256 public s_policyCount = 0;
+    mapping(uint256 idPolicy => PoolLib.Policy) private s_policyList;
 
-    mapping(address => PoolLib.Member) private s_members;
+    mapping(uint256 id => address memberAddress) private s_memberId;
+    mapping(address => PoolLib.Member) public s_members;
 
-    PoolLib.Claim[] private s_claims;
+    PoolLib.Claim[] public s_claims;
 
     mapping(uint256 id => mapping(address member => bool hasVoted))
-        private s_voters;
+        public s_voters;
 
     function createPolicy(
         string memory _name,
@@ -50,9 +51,33 @@ contract ParisurePool {
         s_policyCount++;
     }
 
-    function getPolicy(
+    function getPolicyDetail(
         uint256 _policyId
     ) public view returns (PoolLib.Policy memory) {
         return s_policyList[_policyId];
+    }
+
+    function memberJoin(
+        address memberAddress,
+        uint256 joinedAt,
+        uint256 expiredDate,
+        uint256 policyId
+    ) public {
+        s_members[memberAddress] = PoolLib.Member(
+            true,
+            joinedAt,
+            expiredDate,
+            policyId
+        );
+    }
+
+    function getMember(
+        uint256 _id
+    ) public view returns (PoolLib.Member memory) {
+        address memberAddress = s_memberId[_id];
+
+        PoolLib.Member memory memberDetail = s_members[memberAddress];
+
+        return memberDetail;
     }
 }
