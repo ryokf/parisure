@@ -16,7 +16,7 @@ contract PoolFactory {
         uint256 _ownerFee,
         uint256 _waitingPeriod,
         uint256 _maxCoverageAmount
-    ) public {
+    ) public returns (address) {
         ParisurePool newPool = new ParisurePool(
             _name,
             _ownerFee,
@@ -26,5 +26,13 @@ contract PoolFactory {
         );
 
         poolList.push(PoolInfo(address(newPool), msg.sender, _name));
+
+        return address(newPool);
+    }
+
+    function getPoolDetail(
+        uint256 _poolId
+    ) public view returns (PoolInfo memory) {
+        return poolList[_poolId];
     }
 }
