@@ -13,13 +13,11 @@ contract PoolFactory {
 
     function createPool(
         string memory _name,
-        uint256 _ownerFee,
         uint256 _waitingPeriod,
         uint256 _maxCoverageAmount
     ) public returns (address) {
         ParisurePool newPool = new ParisurePool(
             _name,
-            _ownerFee,
             _waitingPeriod,
             _maxCoverageAmount,
             msg.sender

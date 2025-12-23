@@ -8,8 +8,6 @@ contract ParisurePool {
     string public s_name;
     address public immutable i_owner;
     uint256 public s_maxCoverageAmount;
-    uint256 public s_ownerFee;
-    uint256 public s_ownerBalance;
     uint256 public s_waitingPeriod;
 
     modifier onlyOwner() {
@@ -19,21 +17,19 @@ contract ParisurePool {
 
     constructor(
         string memory name,
-        uint256 ownerFee,
         uint256 waitingPeriod,
         uint256 maxCoverageAmount,
         address owner
     ) {
         s_name = name;
         s_maxCoverageAmount = maxCoverageAmount;
-        s_ownerFee = ownerFee;
         s_waitingPeriod = waitingPeriod;
         i_owner = owner;
     }
 
     PoolLib.Policy[] public s_policyList;
 
-    mapping(uint256 id => address memberAddress) private s_memberId;
+    address[] private s_memberId;
     mapping(address => PoolLib.Member) public s_members;
 
     PoolLib.Claim[] public s_claims;
@@ -64,10 +60,12 @@ contract ParisurePool {
         address _memberAddress,
         uint256 _policyId
     ) public payable {
-        PoolLib.Policy memory policy = getPolicyDetail(_policyId);
-
         // cek apakah polis ada
         require(_policyId < s_policyList.length, "Policy Not Found");
+        PoolLib.Policy memory policy = getPolicyDetail(_policyId);
+
+        // cek apakah polis aktif
+        require(!policy.isActive, "Policy is not active");
 
         // cek harga polis
         require(msg.value == policy.price, "Make sure you input right value");
