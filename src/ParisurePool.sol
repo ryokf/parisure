@@ -56,10 +56,7 @@ contract ParisurePool {
         return s_policyList.length;
     }
 
-    function memberJoinPool(
-        address _memberAddress,
-        uint256 _policyId
-    ) public payable {
+    function memberJoinPool(uint256 _policyId) public payable {
         // cek apakah polis ada
         require(_policyId < s_policyList.length, "Policy Not Found");
         PoolLib.Policy memory policy = getPolicyDetail(_policyId);
@@ -70,7 +67,7 @@ contract ParisurePool {
         // cek harga polis
         require(msg.value == policy.price, "Make sure you input right value");
 
-        s_members[_memberAddress] = PoolLib.Member(
+        s_members[msg.sender] = PoolLib.Member(
             true,
             block.timestamp,
             block.timestamp + policy.duration,
