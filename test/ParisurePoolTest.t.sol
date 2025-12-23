@@ -17,6 +17,7 @@ contract ParisurePoolTest is Test {
     }
 
     function testCreatePolicy() public {
+        vm.prank(address(this));
         pool.createPolicy("perlindungan kilat", 1, 10 gwei, true);
 
         PoolLib.Policy memory newPool = pool.getPolicyDetail(0);
@@ -32,7 +33,7 @@ contract ParisurePoolTest is Test {
         pool.createPolicy("perlindungan aman", 7, 50 gwei, true);
         pool.createPolicy("perlindungan ekstra", 30, 250 gwei, true);
 
-        uint256 policyCount = pool.s_policyCount();
+        uint256 policyCount = pool.getPolicyCount();
 
         for (uint256 i = 0; i < policyCount; i++) {
             PoolLib.Policy memory policy = pool.getPolicyDetail(i);

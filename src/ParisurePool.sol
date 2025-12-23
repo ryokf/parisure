@@ -11,6 +11,12 @@ contract ParisurePool {
     uint256 public s_ownerFee;
     uint256 public s_ownerBalance;
     uint256 public s_waitingPeriod;
+
+    modifier onlyOwner() {
+        require(msg.sender == i_owner, "Not owner");
+        _;
+    }
+
     constructor(
         string memory name,
         uint256 ownerFee,
@@ -25,8 +31,7 @@ contract ParisurePool {
         i_owner = owner;
     }
 
-    uint256 public s_policyCount = 0;
-    mapping(uint256 idPolicy => PoolLib.Policy) private s_policyList;
+    PoolLib.Policy[] public s_policyList;
 
     mapping(uint256 id => address memberAddress) private s_memberId;
     mapping(address => PoolLib.Member) public s_members;
@@ -41,14 +46,8 @@ contract ParisurePool {
         uint256 _duration,
         uint256 _price,
         bool _isActive
-    ) public {
-        s_policyList[s_policyCount] = PoolLib.Policy(
-            _name,
-            _duration,
-            _price,
-            _isActive = true
-        );
-        s_policyCount++;
+    ) public onlyOwner {
+        s_policyList.push(PoolLib.Policy(_name, _duration, _price, _isActive));
     }
 
     function getPolicyDetail(
@@ -57,17 +56,27 @@ contract ParisurePool {
         return s_policyList[_policyId];
     }
 
-    function memberJoin(
-        address memberAddress,
-        uint256 joinedAt,
-        uint256 expiredDate,
-        uint256 policyId
-    ) public {
-        s_members[memberAddress] = PoolLib.Member(
+    function getPolicyCount() public view returns (uint256) {
+        return s_policyList.length;
+    }
+
+    function memberJoinPool(
+        address _memberAddress,
+        uint256 _policyId
+    ) public payable {
+        PoolLib.Policy memory policy = getPolicyDetail(_policyId);
+
+        // cek apakah polis ada
+        require(_policyId < s_policyList.length, "Policy Not Found");
+
+        // cek harga polis
+        require(msg.value == policy.price, "Make sure you input right value");
+
+        s_members[_memberAddress] = PoolLib.Member(
             true,
-            joinedAt,
-            expiredDate,
-            policyId
+            block.timestamp,
+            block.timestamp + policy.duration,
+            _policyId
         );
     }
 
