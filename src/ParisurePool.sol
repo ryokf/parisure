@@ -65,7 +65,7 @@ contract ParisurePool {
         PoolLib.Policy memory policy = getPolicyDetail(_policyId);
 
         // cek apakah polis aktif
-        require(!policy.isActive, "Policy is not active");
+        require(policy.isActive, "Policy is not active");
 
         // cek harga polis
         require(msg.value == policy.price, "Make sure you input right value");
@@ -76,6 +76,8 @@ contract ParisurePool {
             block.timestamp + policy.duration,
             _policyId
         );
+
+        s_memberId.push(msg.sender);
     }
 
     function getMember(
