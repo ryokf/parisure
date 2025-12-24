@@ -5,6 +5,19 @@ pragma solidity ^0.8.30;
 import {PoolLib} from "./library/poolLib.sol";
 
 contract ParisurePool {
+    event MemberJoined(
+        address memberAddress,
+        uint256 policyId,
+        uint256 timestamp
+    );
+    event claimSubmitted(address claimant, uint256 claimId, string photoUrl);
+    event voted(address voter, uint256 claimId, bool vote);
+    event claimExecuted(
+        uint256 claimId,
+        PoolLib.statusClaims status,
+        uint256 value
+    );
+
     string public s_name;
     address public immutable i_owner;
     uint256 public s_maxCoverageAmount;
