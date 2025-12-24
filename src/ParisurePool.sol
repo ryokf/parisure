@@ -88,6 +88,8 @@ contract ParisurePool {
         );
 
         s_memberId.push(msg.sender);
+
+        emit MemberJoined(msg.sender, _policyId, block.timestamp);
     }
 
     function getMember(
@@ -123,6 +125,8 @@ contract ParisurePool {
         );
 
         s_claims.push(claim);
+
+        emit claimSubmitted(msg.sender, claimCount, _evidenceUrl);
     }
 
     function voteClaim(uint256 _claimId, bool vote) public {
@@ -164,6 +168,8 @@ contract ParisurePool {
                 claim.status = PoolLib.statusClaims.Reject;
             }
         }
+
+        emit voted(msg.sender, _claimId, vote);
     }
 
     function _executeClaim(uint256 _claimId) private {
@@ -182,5 +188,7 @@ contract ParisurePool {
         if (!sendSuccess) {
             revert();
         }
+
+        emit claimExecuted(_claimId, claim.status, address(this).balance);
     }
 }
