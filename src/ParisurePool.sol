@@ -34,7 +34,7 @@ contract ParisurePool {
 
     PoolLib.Claim[] public s_claims;
 
-    mapping(uint256 id => mapping(address member => bool hasVoted))
+    mapping(uint256 claimId => mapping(address member => bool hasVoted))
         public s_voters;
 
     function createPolicy(
@@ -85,5 +85,89 @@ contract ParisurePool {
         PoolLib.Member memory memberDetail = s_members[memberAddress];
 
         return memberDetail;
+    }
+
+    function submitClaim(
+        string memory _evidenceUrl,
+        string memory _description
+    ) public {
+        PoolLib.Member memory member = s_members[msg.sender];
+        require(member.isActive, "Your status is not active");
+
+        // PoolLib.Policy memory policy = s_policyList[member.policyId];
+        require(member.expiredDate > block.timestamp);
+
+        uint256 claimCount = s_claims.length;
+
+        PoolLib.Claim memory claim = PoolLib.Claim(
+            claimCount,
+            msg.sender,
+            _evidenceUrl,
+            _description,
+            0,
+            0,
+            PoolLib.statusClaims.Pending
+        );
+
+        s_claims.push(claim);
+    }
+
+    function voteClaim(uint256 _claimId, bool vote) public {
+        PoolLib.Member memory member = s_members[msg.sender];
+
+        require(member.isActive, "Your account is not active");
+
+        bool voters = s_voters[_claimId][msg.sender];
+
+        require(!voters, "You has been voted");
+
+        PoolLib.Claim storage claim = s_claims[_claimId];
+
+        require(
+            claim.status == PoolLib.statusClaims.Pending,
+            "this claim was done"
+        );
+
+        require(
+            claim.claimant != msg.sender,
+            "you not allowed to vote your own claim"
+        );
+
+        if (vote) {
+            claim.voteYes++;
+        } else {
+            claim.voteNo++;
+        }
+
+        voters = true;
+
+        uint256 totalVote = claim.voteYes + claim.voteNo;
+
+        if (totalVote == s_memberId.length) {
+            if (claim.voteYes > claim.voteNo) {
+                claim.status = PoolLib.statusClaims.Accept;
+                _executeClaim(_claimId);
+            } else {
+                claim.status = PoolLib.statusClaims.Reject;
+            }
+        }
+    }
+
+    function _executeClaim(uint256 _claimId) private {
+        PoolLib.Claim storage claim = s_claims[_claimId];
+
+        require(
+            claim.status == PoolLib.statusClaims.Accept,
+            "rejected claim can't executed"
+        );
+
+        if (address(this).balance > s_maxCoverageAmount) {
+            (bool sendSuccess, ) = payable(claim.claimant).call{
+                value: s_maxCoverageAmount
+            }("");
+            if (!sendSuccess) {
+                revert();
+            }
+        }
     }
 }
