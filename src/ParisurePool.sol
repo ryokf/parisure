@@ -6,13 +6,13 @@ import {PoolLib} from "./library/poolLib.sol";
 
 contract ParisurePool {
     event MemberJoined(
-        address memberAddress,
+        address emberAddress,
         uint256 policyId,
         uint256 timestamp
     );
-    event claimSubmitted(address claimant, uint256 claimId, string photoUrl);
-    event voted(address voter, uint256 claimId, bool vote);
-    event claimExecuted(
+    event ClaimSubmitted(address claimant, uint256 claimId, string photoUrl);
+    event Voted(address voter, uint256 claimId, bool vote);
+    event ClaimExecuted(
         uint256 claimId,
         PoolLib.statusClaims status,
         uint256 value
@@ -87,7 +87,9 @@ contract ParisurePool {
             _policyId
         );
 
-        s_memberId.push(msg.sender);
+        if (s_members[msg.sender].joinedAt == 0) {
+            s_memberId.push(msg.sender);
+        }
 
         emit MemberJoined(msg.sender, _policyId, block.timestamp);
     }
@@ -126,7 +128,7 @@ contract ParisurePool {
 
         s_claims.push(claim);
 
-        emit claimSubmitted(msg.sender, claimCount, _evidenceUrl);
+        emit ClaimSubmitted(msg.sender, claimCount, _evidenceUrl);
     }
 
     function voteClaim(uint256 _claimId, bool vote) public {
@@ -160,7 +162,7 @@ contract ParisurePool {
 
         uint256 totalVote = claim.voteYes + claim.voteNo;
 
-        if (totalVote == s_memberId.length / 2) {
+        if (totalVote >= s_memberId.length / 2) {
             if (claim.voteYes > claim.voteNo) {
                 claim.status = PoolLib.statusClaims.Accept;
                 _executeClaim(_claimId);
@@ -169,7 +171,7 @@ contract ParisurePool {
             }
         }
 
-        emit voted(msg.sender, _claimId, vote);
+        emit Voted(msg.sender, _claimId, vote);
     }
 
     function _executeClaim(uint256 _claimId) private {
@@ -180,15 +182,15 @@ contract ParisurePool {
             "rejected claim can't executed"
         );
 
-        (bool sendSuccess, ) = payable(claim.claimant).call{
-            value: address(this).balance > s_maxCoverageAmount
-                ? s_maxCoverageAmount
-                : address(this).balance
-        }("");
+        uint256 payout = address(this).balance > s_maxCoverageAmount
+            ? s_maxCoverageAmount
+            : address(this).balance;
+
+        (bool sendSuccess, ) = payable(claim.claimant).call{value: payout}("");
         if (!sendSuccess) {
             revert();
         }
 
-        emit claimExecuted(_claimId, claim.status, address(this).balance);
+        emit ClaimExecuted(_claimId, claim.status, payout);
     }
 }
