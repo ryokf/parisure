@@ -139,11 +139,11 @@ contract ParisurePool {
             claim.voteNo++;
         }
 
-        voters = true;
+        s_voters[_claimId][msg.sender] = true;
 
         uint256 totalVote = claim.voteYes + claim.voteNo;
 
-        if (totalVote == s_memberId.length) {
+        if (totalVote == s_memberId.length / 2) {
             if (claim.voteYes > claim.voteNo) {
                 claim.status = PoolLib.statusClaims.Accept;
                 _executeClaim(_claimId);
@@ -161,13 +161,13 @@ contract ParisurePool {
             "rejected claim can't executed"
         );
 
-        if (address(this).balance > s_maxCoverageAmount) {
-            (bool sendSuccess, ) = payable(claim.claimant).call{
-                value: s_maxCoverageAmount
-            }("");
-            if (!sendSuccess) {
-                revert();
-            }
+        (bool sendSuccess, ) = payable(claim.claimant).call{
+            value: address(this).balance > s_maxCoverageAmount
+                ? s_maxCoverageAmount
+                : address(this).balance
+        }("");
+        if (!sendSuccess) {
+            revert();
         }
     }
 }
