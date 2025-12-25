@@ -320,4 +320,24 @@ export const poolFactoryAbi = [
     ],
     stateMutability: 'view',
   },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'poolAddress',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      { name: 'name', internalType: 'string', type: 'string', indexed: false },
+    ],
+    name: 'PoolCreated',
+  },
 ] as const

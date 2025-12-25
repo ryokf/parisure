@@ -4,6 +4,11 @@ pragma solidity ^0.8.30;
 import {ParisurePool} from "./ParisurePool.sol";
 
 contract PoolFactory {
+    event PoolCreated(
+        address indexed poolAddress,
+        address indexed owner,
+        string name
+    );
     struct PoolInfo {
         address poolAddress;
         address owner;
@@ -24,6 +29,8 @@ contract PoolFactory {
         );
 
         poolList.push(PoolInfo(address(newPool), msg.sender, _name));
+
+        emit PoolCreated(address(newPool), msg.sender, _name);
 
         return address(newPool);
     }

@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import contract_address from '@/constant/contract_address';
-import { parseEther } from 'viem';
+import { parseEther, parseEventLogs } from 'viem';
 import { poolFactoryAbi } from '@/constant/abi';
 
 export default function CreatePool() {
@@ -16,7 +16,6 @@ export default function CreatePool() {
         waitingPeriod: 0,
         maxCoverage: 0,
     });
-    const [newPoolAddress, setNewPoolAddress] = useState('');
 
     const {
         data: hash,
@@ -25,22 +24,40 @@ export default function CreatePool() {
         writeContract
     } = useWriteContract()
 
-    const { 
+    const {
         isLoading: isConfirming, // Loading saat menunggu blockchain confirm
-        isSuccess: isConfirmed // Bernilai True jika sukses
-    } = useWaitForTransactionReceipt({ 
-        hash, 
+        isSuccess: isConfirmed,// Bernilai True jika sukses
+        data: receipt
+    } = useWaitForTransactionReceipt({
+        hash,
     });
 
-    useEffect(() => {
-        if (isConfirmed) {
+    const newPoolAddress = useMemo(() => {
+        if (!isConfirmed || !receipt) return null
+
+        try {
+            const logs = parseEventLogs({
+                abi: poolFactoryAbi,
+                logs: receipt.logs,
+                eventName: "PoolCreated"
+            })
+
             setFormData({
                 name: '',
                 waitingPeriod: 0,
                 maxCoverage: 0,
             });
+
+            if (logs.length > 0) {
+                // Ambil event pertama (karena kita cuma create 1 pool)
+                return logs[0].args.poolAddress;
+                
+            }
+
+        } catch (e) {
+            console.error(e)
         }
-    }, [isConfirmed]);
+    }, [isConfirmed, receipt])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -63,7 +80,7 @@ export default function CreatePool() {
                 parseEther(formData.maxCoverage.toString()),
             ],
         })
-        
+
         console.log('Creating pool ', newContract);
     };
 
@@ -74,7 +91,7 @@ export default function CreatePool() {
         });
     };
 
-    if (isConfirmed) {
+    if (isConfirmed && newPoolAddress) {
         return (
             <div className="min-h-screen flex items-center justify-center px-4">
                 <Card className="max-w-2xl w-full text-center" hover={false}>
@@ -182,10 +199,10 @@ export default function CreatePool() {
                             className="w-full"
                             isLoading={isPending || isConfirming}
                         >
-                            {isPending 
-                                ? 'Check Wallet...' 
-                                : isConfirming 
-                                    ? 'Confirming Transaction...' 
+                            {isPending
+                                ? 'Check Wallet...'
+                                : isConfirming
+                                    ? 'Confirming Transaction...'
                                     : 'Create Pool'
                             }
                         </Button>
