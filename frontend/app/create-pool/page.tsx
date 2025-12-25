@@ -9,6 +9,7 @@ import { writeContract } from 'wagmi/actions';
 import { useWriteContract } from 'wagmi';
 import contract_address from '@/constant/contract_address';
 import { parisurePoolAbi, poolFactoryAbi } from '@/constant/abi';
+import { parseEther } from 'viem';
 
 export default function CreatePool() {
     const [formData, setFormData] = useState({
@@ -45,8 +46,8 @@ export default function CreatePool() {
             functionName: 'createPool',
             args: [
                 formData.name,
-                BigInt(formData.waitingPeriod),
-                BigInt(formData.maxCoverage),
+                BigInt(formData.waitingPeriod) * BigInt(24 * 60 * 60),
+                parseEther(formData.maxCoverage.toString()),
             ],
         })
     };
