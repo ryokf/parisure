@@ -5,28 +5,50 @@ import Link from 'next/link';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
+import { writeContract } from 'wagmi/actions';
+import { useWriteContract } from 'wagmi';
+import contract_address from '@/constant/contract_address';
+import { parisurePoolAbi, poolFactoryAbi } from '@/constant/abi';
 
 export default function CreatePool() {
     const [formData, setFormData] = useState({
         name: '',
-        waitingPeriod: '',
-        maxCoverage: '',
+        waitingPeriod: 0,
+        maxCoverage: 0,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
     const [newPoolAddress, setNewPoolAddress] = useState('');
+
+    const {
+        data: hash,
+        error,
+        isPending,
+        writeContract
+    } = useWriteContract()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
 
         // Simulate contract interaction
-        setTimeout(() => {
-            const mockAddress = `0x${Math.random().toString(16).slice(2, 42)}`;
-            setNewPoolAddress(mockAddress);
-            setSuccess(true);
-            setIsSubmitting(false);
-        }, 2000);
+        // setTimeout(() => {
+        //     const mockAddress = `0x${Math.random().toString(16).slice(2, 42)}`;
+        //     setNewPoolAddress(mockAddress);
+        //     setSuccess(true);
+        //     setIsSubmitting(false);
+        // }, 2000);
+
+        writeContract({
+            address: contract_address,
+            abi: poolFactoryAbi,
+            functionName: 'createPool',
+            args: [
+                formData.name,
+                BigInt(formData.waitingPeriod),
+                BigInt(formData.maxCoverage),
+            ],
+        })
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
