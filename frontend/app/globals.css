@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@rainbow-me/rainbowkit/styles.css";
 
 :root {
   /* Colors */
@@ -112,7 +113,9 @@
 }
 
 .hover-lift {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .hover-lift:hover {
@@ -163,4 +166,102 @@
   .container {
     padding: 0 var(--spacing-sm);
   }
+}
+
+/* RainbowKit Custom Styling */
+[data-rk] button[data-testid="rk-connect-button"] {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: 1px solid rgba(102, 126, 234, 0.3) !important;
+  border-radius: 12px !important;
+  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  color: white !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2) !important;
+}
+
+[data-rk] button[data-testid="rk-connect-button"]:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4) !important;
+  border-color: rgba(102, 126, 234, 0.5) !important;
+}
+
+/* Account Button (when connected) */
+[data-rk] button[data-testid="rk-account-button"] {
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(102, 126, 234, 0.3) !important;
+  border-radius: 12px !important;
+  padding: 8px 16px !important;
+  color: white !important;
+  transition: all 0.3s ease !important;
+}
+
+[data-rk] button[data-testid="rk-account-button"]:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(102, 126, 234, 0.5) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Chain Button */
+[data-rk] button[data-testid="rk-chain-button"] {
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(102, 126, 234, 0.3) !important;
+  border-radius: 12px !important;
+  padding: 8px 16px !important;
+  color: white !important;
+  transition: all 0.3s ease !important;
+}
+
+[data-rk] button[data-testid="rk-chain-button"]:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(102, 126, 234, 0.5) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Modal Styling */
+[data-rk] [role="dialog"] {
+  background: rgba(10, 10, 15, 0.98) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(102, 126, 234, 0.2) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Modal Header */
+[data-rk] [role="dialog"] h1 {
+  color: white !important;
+}
+
+/* Wallet Options */
+[data-rk] button[data-testid^="rk-wallet-option"] {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  transition: all 0.3s ease !important;
+}
+
+[data-rk] button[data-testid^="rk-wallet-option"]:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(102, 126, 234, 0.4) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Modal Text */
+[data-rk] [role="dialog"] span,
+[data-rk] [role="dialog"] div {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Close Button */
+[data-rk] button[aria-label="Close"] {
+  color: white !important;
+  transition: all 0.3s ease !important;
+}
+
+[data-rk] button[aria-label="Close"]:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  transform: rotate(90deg) !important;
 }

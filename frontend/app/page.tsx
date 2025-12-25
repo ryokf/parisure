@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
 import { mockPools, formatAddress } from '@/lib/mockData';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export default function Home() {
   return (
@@ -25,9 +26,7 @@ export default function Home() {
             </p>
 
             <div className="flex gap-4 justify-center flex-wrap">
-              <Button variant="primary">
-                Connect Wallet
-              </Button>
+              <ConnectButton />
               <Link href="/create-pool">
                 <Button variant="secondary">
                   Create Pool
