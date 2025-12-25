@@ -5,10 +5,8 @@ import Link from 'next/link';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
-import { writeContract } from 'wagmi/actions';
-import { useWriteContract } from 'wagmi';
+import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import contract_address from '@/constant/contract_address';
-import { parisurePoolAbi, poolFactoryAbi } from '@/constant/abi';
 import { parseEther } from 'viem';
 
 export default function CreatePool() {
@@ -17,7 +15,6 @@ export default function CreatePool() {
         waitingPeriod: 0,
         maxCoverage: 0,
     });
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
     const [newPoolAddress, setNewPoolAddress] = useState('');
 
@@ -28,9 +25,15 @@ export default function CreatePool() {
         writeContract
     } = useWriteContract()
 
+    const { 
+        isLoading: isConfirming, // Loading saat menunggu blockchain confirm
+        isSuccess: isConfirmed // Bernilai True jika sukses
+    } = useWaitForTransactionReceipt({ 
+        hash, 
+    });
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsSubmitting(true);
 
         // Simulate contract interaction
         // setTimeout(() => {
@@ -165,9 +168,14 @@ export default function CreatePool() {
                             type="submit"
                             variant="primary"
                             className="w-full"
-                            isLoading={isSubmitting}
+                            isLoading={isPending || isConfirming}
                         >
-                            {isSubmitting ? 'Creating Pool...' : 'Create Pool'}
+                            {isPending 
+                                ? 'Check Wallet...' 
+                                : isConfirming 
+                                    ? 'Confirming Transaction...' 
+                                    : 'Create Pool'
+                            }
                         </Button>
                     </form>
                 </Card>
