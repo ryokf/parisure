@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
@@ -8,6 +8,7 @@ import Input from '@/components/Input';
 import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import contract_address from '@/constant/contract_address';
 import { parseEther } from 'viem';
+import { poolFactoryAbi } from '@/constant/abi';
 
 export default function CreatePool() {
     const [formData, setFormData] = useState({
@@ -15,7 +16,6 @@ export default function CreatePool() {
         waitingPeriod: 0,
         maxCoverage: 0,
     });
-    const [success, setSuccess] = useState(false);
     const [newPoolAddress, setNewPoolAddress] = useState('');
 
     const {
@@ -32,6 +32,16 @@ export default function CreatePool() {
         hash, 
     });
 
+    useEffect(() => {
+        if (isConfirmed) {
+            setFormData({
+                name: '',
+                waitingPeriod: 0,
+                maxCoverage: 0,
+            });
+        }
+    }, [isConfirmed]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -43,7 +53,7 @@ export default function CreatePool() {
         //     setIsSubmitting(false);
         // }, 2000);
 
-        writeContract({
+        const newContract = writeContract({
             address: contract_address,
             abi: poolFactoryAbi,
             functionName: 'createPool',
@@ -53,6 +63,8 @@ export default function CreatePool() {
                 parseEther(formData.maxCoverage.toString()),
             ],
         })
+        
+        console.log('Creating pool ', newContract);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,7 +74,7 @@ export default function CreatePool() {
         });
     };
 
-    if (success) {
+    if (isConfirmed) {
         return (
             <div className="min-h-screen flex items-center justify-center px-4">
                 <Card className="max-w-2xl w-full text-center" hover={false}>
