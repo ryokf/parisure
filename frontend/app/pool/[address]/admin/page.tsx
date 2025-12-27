@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import Card from '@/components/ui/Card';
@@ -8,14 +8,37 @@ import Button from '@/components/ui/Button';
 import PoolStats from '@/components/pool/PoolStats';
 import PoolInfo from '@/components/pool/PoolInfo';
 import CreatePolicyForm from '@/components/pool/CreatePolicyForm';
-import { getPoolByAddress } from '@/lib/mockData';
+import { useAccount, useReadContract } from 'wagmi';
+import { parisurePoolAbi } from '@/constant/abi';
 
 export default function AdminPage() {
     const params = useParams();
     const address = params.address as string;
 
-    const pool = getPoolByAddress(address);
-    const [isOwner] = useState(true); // Mock owner check
+    const [isOwner, setIsOwner] = useState(false); // Mock owner check
+
+    const { address: userAddress, isConnected } = useAccount()
+
+    const { data: pool, isLoading } = useReadContract({
+        address: address as `0x${string}`,
+        abi: parisurePoolAbi,
+        functionName: "getPoolDetail"
+    })
+
+    useEffect(() => {
+        const checkIsOwner = () => {
+            if (pool && !isLoading) {
+                if (userAddress == pool[3] && isConnected) {
+                    setIsOwner(true)
+                }
+            }
+        }
+
+        checkIsOwner()
+
+        console.log(userAddress)
+        console.log(address)
+    }, [userAddress, isConnected, address, isLoading, pool])
 
     const handleCreatePolicy = async (formData: any) => {
         alert(`Policy created!\nName: ${formData.name}\nDuration: ${formData.duration} days\nPrice: ${formData.price} ETH`);
@@ -79,7 +102,7 @@ export default function AdminPage() {
                         </div>
                         <div>
                             <h1 className="text-4xl md:text-5xl font-bold">Admin Panel</h1>
-                            <p className="text-gray-400">{pool.name}</p>
+                            <p className="text-gray-400">{pool[0]}</p>
                         </div>
                     </div>
                 </div>
@@ -95,15 +118,15 @@ export default function AdminPage() {
 
                     {/* Pool Info */}
                     <PoolInfo
-                        owner={pool.owner}
-                        poolAddress={pool.poolAddress}
+                        owner={pool[3]}
+                        poolAddress={address}
                         solvencyStatus="Solvent"
                     />
                 </div>
 
                 {/* Add Policy Form */}
                 <CreatePolicyForm
-                    poolName={pool.name}
+                    poolName={pool[0]}
                     onSubmit={handleCreatePolicy}
                 />
             </div>

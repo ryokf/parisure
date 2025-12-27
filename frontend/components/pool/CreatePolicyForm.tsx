@@ -38,6 +38,8 @@ export default function CreatePolicyForm({ poolName, onSubmit }: CreatePolicyFor
         },
     });
 
+
+
     return (
         <Card hover={false} className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
             <h3 className="text-2xl font-bold mb-8">Create New Policy</h3>
