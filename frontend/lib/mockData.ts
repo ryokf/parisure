@@ -146,15 +146,3 @@ export function getPoliciesForPool(poolAddress: string): Policy[] {
 export function getPoolByAddress(address: string): PoolInfo | undefined {
     return mockPools.find(pool => pool.poolAddress === address);
 }
-
-export function formatDuration(seconds: number): string {
-    const days = Math.floor(seconds / 86400);
-    if (days >= 365) {
-        return `${Math.floor(days / 365)} Year${Math.floor(days / 365) > 1 ? 's' : ''}`;
-    }
-    return `${days} Day${days > 1 ? 's' : ''}`;
-}
-
-export function formatAddress(address: string): string {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-}

@@ -3,19 +3,18 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import Card from '@/components/Card';
-import Button from '@/components/Button';
-import Input from '@/components/Input';
-import Tabs from '@/components/Tabs';
-import Countdown from '@/components/Countdown';
+import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import Tabs from '@/components/ui/Tabs';
+import Countdown from '@/components/ui/Countdown';
 import {
     getPoolByAddress,
     getPoliciesForPool,
     mockMember,
     mockClaims,
-    formatDuration,
-    formatAddress
 } from '@/lib/mockData';
+import { formatDuration, formatAddress } from '@/services/formatting/formatters';
 import { ClaimStatus } from '@/lib/types';
 
 export default function PoolDetail() {

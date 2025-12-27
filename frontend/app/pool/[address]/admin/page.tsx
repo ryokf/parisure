@@ -3,10 +3,18 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import Card from '@/components/Card';
-import Button from '@/components/Button';
-import Input from '@/components/Input';
+import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
 import { getPoolByAddress } from '@/lib/mockData';
+import { useForm } from '@/hooks/useForm';
+
+interface PolicyFormData {
+    name: string;
+    duration: number;
+    price: number;
+    [key: string]: string | number;
+}
 
 export default function AdminPage() {
     const params = useParams();
@@ -14,12 +22,19 @@ export default function AdminPage() {
 
     const pool = getPoolByAddress(address);
     const [isOwner] = useState(true); // Mock owner check
+    const [isActive, setIsActive] = useState(true);
 
-    const [policyForm, setPolicyForm] = useState({
-        name: '',
-        duration: '',
-        price: '',
-        isActive: true,
+    const { values, handleChange, handleSubmit, resetForm } = useForm<PolicyFormData>({
+        initialValues: {
+            name: '',
+            duration: 0,
+            price: 0,
+        },
+        onSubmit: async (formData) => {
+            alert(`Policy created!\nName: ${formData.name}\nDuration: ${formData.duration} days\nPrice: ${formData.price} ETH`);
+            resetForm();
+            setIsActive(true);
+        },
     });
 
     if (!pool) {
@@ -55,19 +70,6 @@ export default function AdminPage() {
             </div>
         );
     }
-
-    const handleSubmitPolicy = (e: React.FormEvent) => {
-        e.preventDefault();
-        alert(`Policy created!\nName: ${policyForm.name}\nDuration: ${policyForm.duration} days\nPrice: ${policyForm.price} ETH`);
-        setPolicyForm({ name: '', duration: '', price: '', isActive: true });
-    };
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPolicyForm({
-            ...policyForm,
-            [e.target.name]: e.target.value,
-        });
-    };
 
     return (
         <div className="min-h-screen py-24 px-4">
@@ -147,14 +149,14 @@ export default function AdminPage() {
                 {/* Add Policy Form */}
                 <Card hover={false} className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
                     <h3 className="text-2xl font-bold mb-8">Create New Policy</h3>
-                    <form onSubmit={handleSubmitPolicy} className="space-y-8">
+                    <form onSubmit={handleSubmit} className="space-y-8">
                         <Input
                             label="Policy Name"
                             name="name"
                             type="text"
                             placeholder="e.g., Premium Coverage Plan"
-                            value={policyForm.name}
-                            onChange={handleInputChange}
+                            value={values.name}
+                            onChange={handleChange}
                             required
                         />
 
@@ -164,8 +166,8 @@ export default function AdminPage() {
                                 name="duration"
                                 type="number"
                                 placeholder="e.g., 30"
-                                value={policyForm.duration}
-                                onChange={handleInputChange}
+                                value={values.duration}
+                                onChange={handleChange}
                                 required
                             />
 
@@ -175,8 +177,8 @@ export default function AdminPage() {
                                 type="number"
                                 step="0.01"
                                 placeholder="e.g., 0.5"
-                                value={policyForm.price}
-                                onChange={handleInputChange}
+                                value={values.price}
+                                onChange={handleChange}
                                 required
                             />
                         </div>
@@ -185,8 +187,8 @@ export default function AdminPage() {
                             <input
                                 type="checkbox"
                                 id="isActive"
-                                checked={policyForm.isActive}
-                                onChange={(e) => setPolicyForm({ ...policyForm, isActive: e.target.checked })}
+                                checked={isActive}
+                                onChange={(e) => setIsActive(e.target.checked)}
                                 className="w-5 h-5 rounded bg-white/5 border border-white/10 checked:bg-purple-500"
                             />
                             <label htmlFor="isActive" className="text-gray-300 cursor-pointer">

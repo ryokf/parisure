@@ -1,21 +1,13 @@
 'use client'
 
 import Link from 'next/link';
-import Card from '@/components/Card';
-import Button from '@/components/Button';
-import { mockPools, formatAddress } from '@/lib/mockData';
+import Button from '@/components/ui/Button';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useReadContract } from 'wagmi';
-import contract_address from '@/constant/contract_address';
-import { poolFactoryAbi } from '@/constant/abi';
-import PoolCardItem from '@/components/PoolCardItem';
+import { usePoolCount } from '@/hooks/usePoolFactory';
+import PoolCard from '@/components/pool/PoolCard';
 
 export default function Home() {
-  const { data: poolCount, isLoading } = useReadContract({
-    address: contract_address,
-    abi: poolFactoryAbi,
-    functionName: "getPoolLength",
-  })
+  const { data: poolCount, isLoading } = usePoolCount();
 
   return (
     <div className="min-h-screen">
@@ -70,7 +62,7 @@ export default function Home() {
                 (
                   poolCount && poolCount > 0 && (
                     Array.from({ length: Number(poolCount) }).map((_, i) => (
-                      <PoolCardItem key={i} index={i}></PoolCardItem>
+                      <PoolCard key={i} index={i} />
                     ))
                   )
                 )
@@ -78,7 +70,7 @@ export default function Home() {
           </div>
 
           {/* Empty State */}
-          {mockPools.length === 0 && (
+          {!isLoading && (!poolCount || poolCount === 0) && (
             <div className="text-center py-16">
               <div className="text-gray-400 mb-4">No insurance pools available yet</div>
               <Link href="/create-pool">

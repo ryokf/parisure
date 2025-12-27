@@ -1,88 +1,34 @@
 'use client';
 
-import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import Card from '@/components/Card';
-import Button from '@/components/Button';
-import Input from '@/components/Input';
-import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
-import contract_address from '@/constant/contract_address';
-import { parseEther, parseEventLogs } from 'viem';
-import { poolFactoryAbi } from '@/constant/abi';
+import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import { useCreatePool } from '@/hooks/usePoolFactory';
+import { useForm } from '@/hooks/useForm';
+
+interface CreatePoolFormData {
+    name: string;
+    waitingPeriod: number;
+    maxCoverage: number;
+    [key: string]: string | number;
+}
 
 export default function CreatePool() {
-    const [formData, setFormData] = useState({
-        name: '',
-        waitingPeriod: 0,
-        maxCoverage: 0,
+    const { createPool, isPending, isConfirming, isConfirmed, newPoolAddress } = useCreatePool();
+
+    const { values, handleChange, handleSubmit } = useForm<CreatePoolFormData>({
+        initialValues: {
+            name: '',
+            waitingPeriod: 0,
+            maxCoverage: 0,
+        },
+        onSubmit: async (formData) => {
+            createPool(formData.name, formData.waitingPeriod, formData.maxCoverage);
+        },
     });
 
-    const {
-        data: hash,
-        error,
-        isPending,
-        writeContract
-    } = useWriteContract()
-
-    const {
-        isLoading: isConfirming, // Loading saat menunggu blockchain confirm
-        isSuccess: isConfirmed,// Bernilai True jika sukses
-        data: receipt
-    } = useWaitForTransactionReceipt({
-        hash,
-    });
-
-    const newPoolAddress = useMemo(() => {
-        if (!isConfirmed || !receipt) return null
-
-        try {
-            const logs = parseEventLogs({
-                abi: poolFactoryAbi,
-                logs: receipt.logs,
-                eventName: "PoolCreated"
-            })
-
-            setFormData({
-                name: '',
-                waitingPeriod: 0,
-                maxCoverage: 0,
-            });
-
-            if (logs.length > 0) {
-                // Ambil event pertama (karena kita cuma create 1 pool)
-                return logs[0].args.poolAddress;
-                
-            }
-
-        } catch (e) {
-            console.error(e)
-        }
-    }, [isConfirmed, receipt])
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        const newContract = writeContract({
-            address: contract_address,
-            abi: poolFactoryAbi,
-            functionName: 'createPool',
-            args: [
-                formData.name,
-                BigInt(formData.waitingPeriod) * BigInt(24 * 60 * 60),
-                parseEther(formData.maxCoverage.toString()),
-            ],
-        })
-
-        console.log('Creating pool ', newContract);
-    };
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value,
-        });
-    };
-
+    // Success state - pool created
     if (isConfirmed && newPoolAddress) {
         return (
             <div className="min-h-screen flex items-center justify-center px-4">
@@ -144,7 +90,7 @@ export default function CreatePool() {
                             name="name"
                             type="text"
                             placeholder="e.g., Health Insurance Pool"
-                            value={formData.name}
+                            value={values.name}
                             onChange={handleChange}
                             required
                         />
@@ -154,7 +100,7 @@ export default function CreatePool() {
                             name="waitingPeriod"
                             type="number"
                             placeholder="e.g., 7"
-                            value={formData.waitingPeriod}
+                            value={values.waitingPeriod}
                             onChange={handleChange}
                             required
                         />
@@ -165,7 +111,7 @@ export default function CreatePool() {
                             type="number"
                             step="0.01"
                             placeholder="e.g., 1.5"
-                            value={formData.maxCoverage}
+                            value={values.maxCoverage}
                             onChange={handleChange}
                             required
                         />
