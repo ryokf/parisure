@@ -19,7 +19,7 @@ import { formatAddress } from '@/services/formatting/formatters';
 import { useReadContract } from 'wagmi';
 import { parisurePoolAbi } from '@/constant/abi';
 
-export default function PoolDetail({contractAddress} : {contractAddress: string}) {
+export default function PoolDetail() {
     const params = useParams();
     const address = params.address as string;
 
@@ -29,7 +29,7 @@ export default function PoolDetail({contractAddress} : {contractAddress: string}
     const [isMember] = useState(true); // Mock member status
 
     const {data : pool, isLoading} = useReadContract({
-        address: contractAddress as `0x${string}`,
+        address: address as `0x${string}`,
         abi: parisurePoolAbi,
         functionName: "getPoolDetail"
     })
@@ -108,15 +108,15 @@ export default function PoolDetail({contractAddress} : {contractAddress: string}
 
                     <div className="flex items-start justify-between flex-wrap gap-4">
                         <div>
-                            <h1 className="text-4xl md:text-5xl font-bold mb-4">{pool.name}</h1>
+                            <h1 className="text-4xl md:text-5xl font-bold mb-4">{pool[0]}</h1>
                             <div className="flex flex-wrap gap-4 text-sm">
                                 <div>
                                     <span className="text-gray-400">Owner: </span>
-                                    <span className="text-purple-400 font-mono">{formatAddress(pool.owner)}</span>
+                                    <span className="text-purple-400 font-mono">{formatAddress(pool[3])}</span>
                                 </div>
                                 <div>
                                     <span className="text-gray-400">Pool: </span>
-                                    <span className="text-cyan-400 font-mono">{formatAddress(pool.poolAddress)}</span>
+                                    <span className="text-cyan-400 font-mono">{formatAddress(address)}</span>
                                 </div>
                             </div>
                         </div>
