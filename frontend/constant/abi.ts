@@ -311,6 +311,13 @@ export const poolFactoryAbi = [
   },
   {
     type: 'function',
+    inputs: [],
+    name: 'getPoolLength',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     name: 'poolList',
     outputs: [

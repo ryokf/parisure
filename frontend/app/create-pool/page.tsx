@@ -62,14 +62,6 @@ export default function CreatePool() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Simulate contract interaction
-        // setTimeout(() => {
-        //     const mockAddress = `0x${Math.random().toString(16).slice(2, 42)}`;
-        //     setNewPoolAddress(mockAddress);
-        //     setSuccess(true);
-        //     setIsSubmitting(false);
-        // }, 2000);
-
         const newContract = writeContract({
             address: contract_address,
             abi: poolFactoryAbi,

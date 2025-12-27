@@ -40,4 +40,8 @@ contract PoolFactory {
     ) public view returns (PoolInfo memory) {
         return poolList[_poolId];
     }
+
+    function getPoolLength() public view returns (uint256) {
+        return poolList.length;
+    }
 }
