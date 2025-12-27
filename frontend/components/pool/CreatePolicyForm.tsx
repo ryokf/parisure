@@ -3,6 +3,9 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { useForm } from '@/hooks/useForm';
+import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
+import { parisurePoolAbi } from '@/constant/abi';
+import { parseEther } from 'viem';
 
 interface PolicyFormData {
     name: string;
@@ -13,32 +16,52 @@ interface PolicyFormData {
 
 interface CreatePolicyFormProps {
     poolName: string;
-    onSubmit: (formData: PolicyFormData) => Promise<void>;
+    poolAddress: `0x${string}`;
 }
 
-export default function CreatePolicyForm({ poolName, onSubmit }: CreatePolicyFormProps) {
+export default function CreatePolicyForm({ poolName, poolAddress }: CreatePolicyFormProps) {
     const [isActive, setIsActive] = useState(true);
-    const [isLoading, setIsLoading] = useState(false);
+    // const [isLoading, setIsLoading] = useState(false);
 
-    const { values, handleChange, handleSubmit, resetForm } = useForm<PolicyFormData>({
-        initialValues: {
-            name: '',
-            duration: 0,
-            price: 0,
-        },
-        onSubmit: async (formData) => {
-            setIsLoading(true);
-            try {
-                await onSubmit(formData);
-                resetForm();
-                setIsActive(true);
-            } finally {
-                setIsLoading(false);
-            }
-        },
-    });
+    // const { values, handleChange, handleSubmit, resetForm } = useForm<PolicyFormData>({
+    //     initialValues: {
+    //         name: '',
+    //         duration: 0,
+    //         price: 0,
+    //     },
+    //     onSubmit: async (formData) => {
+    //         setIsLoading(true);
+    //         try {
+    //             await onSubmit(formData);
+    //             resetForm();
+    //             setIsActive(true);
+    //         } finally {
+    //             setIsLoading(false);
+    //         }
+    //     },
+    // });
 
+    const [formData, setFormData] = useState({
+        name: "",
+        duration: "",
+        price: ""
+    })
 
+    const { data: hash, isPending, writeContract } = useWriteContract()
+
+    const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash })
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+        const { name, duration, price } = formData
+
+        writeContract({
+            address: poolAddress,
+            abi: parisurePoolAbi,
+            functionName: "createPolicy",
+            args: [name, BigInt(duration), parseEther(price), isActive]
+        })
+    }
 
     return (
         <Card hover={false} className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
@@ -49,8 +72,8 @@ export default function CreatePolicyForm({ poolName, onSubmit }: CreatePolicyFor
                     name="name"
                     type="text"
                     placeholder="e.g., Premium Coverage Plan"
-                    value={values.name}
-                    onChange={handleChange}
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
                 />
 
@@ -60,8 +83,8 @@ export default function CreatePolicyForm({ poolName, onSubmit }: CreatePolicyFor
                         name="duration"
                         type="number"
                         placeholder="e.g., 30"
-                        value={values.duration}
-                        onChange={handleChange}
+                        value={formData.duration}
+                        onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
                         required
                     />
 
@@ -71,8 +94,8 @@ export default function CreatePolicyForm({ poolName, onSubmit }: CreatePolicyFor
                         type="number"
                         step="0.01"
                         placeholder="e.g., 0.5"
-                        value={values.price}
-                        onChange={handleChange}
+                        value={formData.price}
+                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                         required
                     />
                 </div>
