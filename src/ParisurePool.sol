@@ -50,6 +50,10 @@ contract ParisurePool {
     mapping(uint256 claimId => mapping(address member => bool hasVoted))
         public s_voters;
 
+    function getPoolDetail() public view returns(string memory, uint256, uint256, address) {
+        return (s_name, s_waitingPeriod, s_maxCoverageAmount, i_owner);
+    }
+
     function createPolicy(
         string memory _name,
         uint256 _duration,
