@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import Card from '@/components/ui/Card';
@@ -10,31 +10,52 @@ import BuyPolicyTab from '@/components/pool/BuyPolicyTab';
 import MyDashboardTab from '@/components/pool/MyDashboardTab';
 import GovernanceTab from '@/components/pool/GovernanceTab';
 import {
-    getPoolByAddress,
     getPoliciesForPool,
     mockMember,
     mockClaims,
 } from '@/lib/mockData';
 import { formatAddress } from '@/services/formatting/formatters';
-import { useReadContract } from 'wagmi';
+import { useAccount, useReadContract } from 'wagmi';
 import { parisurePoolAbi } from '@/constant/abi';
 
 export default function PoolDetail() {
     const params = useParams();
     const address = params.address as string;
-
-    // const pool = getPoolByAddress(address);
     const policies = getPoliciesForPool(address);
 
-    const [isMember] = useState(true); // Mock member status
+    const [isOwner, setIsOwner] = useState(false);
 
-    const {data : pool, isLoading} = useReadContract({
+    const { data: pool, isLoading } = useReadContract({
         address: address as `0x${string}`,
         abi: parisurePoolAbi,
         functionName: "getPoolDetail"
     })
 
+    const { address: userAddress, isConnected } = useAccount()
+
+    useEffect(() => {
+        const checkIsOwner = () => {
+            if (isConnected && pool && userAddress == pool[3]) {
+                setIsOwner(true)
+            } else {
+                setIsOwner(false)
+            }
+        }
+
+        checkIsOwner()
+    }, [pool, isConnected, userAddress])
+
     console.log(pool)
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center px-4">
+                <Card className="max-w-md w-full text-center" hover={false}>
+                    <h2 className="text-2xl font-bold mb-4">Loading...</h2>
+                </Card>
+            </div>
+        )
+    }
 
     if (!pool) {
         return (
@@ -64,16 +85,16 @@ export default function PoolDetail() {
 
     // Tab A: Buy Policy
     const buyPolicyTab = (
-        <BuyPolicyTab 
-            policies={policies} 
-            onJoinPool={handleJoinPool} 
+        <BuyPolicyTab
+            policies={policies}
+            onJoinPool={handleJoinPool}
         />
     );
 
     // Tab B: My Dashboard
     const myDashboardTab = (
-        <MyDashboardTab 
-            isMember={isMember}
+        <MyDashboardTab
+            isMember={isOwner}
             member={mockMember}
             onSubmitClaim={handleSubmitClaim}
         />
@@ -81,7 +102,7 @@ export default function PoolDetail() {
 
     // Tab C: Governance
     const governanceTab = (
-        <GovernanceTab 
+        <GovernanceTab
             claims={mockClaims}
             onVoteYes={(claimId) => handleVote(claimId, true)}
             onVoteNo={(claimId) => handleVote(claimId, false)}
@@ -121,11 +142,12 @@ export default function PoolDetail() {
                             </div>
                         </div>
 
-                        <Link href={`/pool/${address}/admin`}>
-                            <Button variant="outline">
-                                Admin Panel
-                            </Button>
-                        </Link>
+                        {isOwner &&
+                            <Link href={`/pool/${address}/admin`}>
+                                <Button variant="outline">
+                                    Admin Panel
+                                </Button>
+                            </Link>}
                     </div>
                 </div>
 

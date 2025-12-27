@@ -4,29 +4,68 @@ import Link from 'next/link';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { useCreatePool } from '@/hooks/usePoolFactory';
-import { useForm } from '@/hooks/useForm';
-
-interface CreatePoolFormData {
-    name: string;
-    waitingPeriod: number;
-    maxCoverage: number;
-    [key: string]: string | number;
-}
+import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
+import { useMemo, useState } from 'react';
+import { poolFactoryAbi } from '@/constant/abi';
+import contract_address from '@/constant/contract_address';
+import { parseEther, parseEventLogs } from 'viem';
 
 export default function CreatePool() {
-    const { createPool, isPending, isConfirming, isConfirmed, newPoolAddress } = useCreatePool();
 
-    const { values, handleChange, handleSubmit } = useForm<CreatePoolFormData>({
-        initialValues: {
-            name: '',
-            waitingPeriod: 0,
-            maxCoverage: 0,
-        },
-        onSubmit: async (formData) => {
-            createPool(formData.name, formData.waitingPeriod, formData.maxCoverage);
-        },
+    const [formData, setFormData] = useState({
+        name: '',
+        waitingPeriod: '',
+        maxCoverage: '',
+    })
+
+    const {
+        data: hash,
+        isPending,
+        writeContract,
+    } = useWriteContract();
+    const {
+        isLoading: isConfirming,
+        isSuccess: isConfirmed,
+        data: receipt,
+    } = useWaitForTransactionReceipt({
+        hash,
     });
+
+    const newPoolAddress = useMemo(() => {
+        if (!isConfirmed || !receipt) return null;
+        try {
+            const logs = parseEventLogs({
+                abi: poolFactoryAbi,
+                logs: receipt.logs,
+                eventName: 'PoolCreated',
+            });
+            if (logs.length > 0) {
+                return logs[0].args.poolAddress;
+            }
+        } catch (e) {
+            console.error('Error parsing pool creation event:', e);
+        }
+        return null;
+    }, [isConfirmed, receipt]);
+
+
+    const createPool = (name: string, waitingPeriodDays: number, maxCoverageEth: number) => {
+        return writeContract({
+            address: contract_address,
+            abi: poolFactoryAbi,
+            functionName: 'createPool',
+            args: [
+                name,
+                BigInt(waitingPeriodDays) * BigInt(24 * 60 * 60), // Convert days to seconds
+                parseEther(maxCoverageEth.toString()),
+            ],
+        });
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+        createPool(formData.name, Number(formData.waitingPeriod), Number(formData.maxCoverage))
+    }
 
     // Success state - pool created
     if (isConfirmed && newPoolAddress) {
@@ -90,8 +129,8 @@ export default function CreatePool() {
                             name="name"
                             type="text"
                             placeholder="e.g., Health Insurance Pool"
-                            value={values.name}
-                            onChange={handleChange}
+                            value={formData.name}
+                            onChange={(e) => { setFormData({ ...formData, name: e.target.value }) }}
                             required
                         />
 
@@ -100,8 +139,8 @@ export default function CreatePool() {
                             name="waitingPeriod"
                             type="number"
                             placeholder="e.g., 7"
-                            value={values.waitingPeriod}
-                            onChange={handleChange}
+                            value={formData.waitingPeriod}
+                            onChange={(e) => { setFormData({ ...formData, waitingPeriod: e.target.value }) }}
                             required
                         />
 
@@ -111,8 +150,8 @@ export default function CreatePool() {
                             type="number"
                             step="0.01"
                             placeholder="e.g., 1.5"
-                            value={values.maxCoverage}
-                            onChange={handleChange}
+                            value={formData.maxCoverage}
+                            onChange={(e) => { setFormData({ ...formData, maxCoverage: e.target.value }) }}
                             required
                         />
 

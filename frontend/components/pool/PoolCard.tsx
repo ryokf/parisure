@@ -1,15 +1,22 @@
 import React from 'react';
 import Link from 'next/link';
-import { usePoolByIndex } from '@/hooks/usePoolFactory';
 import Card from '@/components/ui/Card';
 import { formatAddress } from '@/services/formatting/formatters';
+import { useReadContract } from 'wagmi';
+import contract_address from '@/constant/contract_address';
+import { poolFactoryAbi } from '@/constant/abi';
 
 interface PoolCardProps {
     index: number;
 }
 
 export default function PoolCard({ index }: PoolCardProps) {
-    const { data: pool, isLoading } = usePoolByIndex(index);
+    const { data: pool, isLoading } = useReadContract({
+        address: contract_address,
+        abi: poolFactoryAbi,
+        functionName: "getPoolDetail",
+        args: [BigInt(index)]
+    });
 
     if (isLoading || !pool) {
         return (
@@ -21,10 +28,8 @@ export default function PoolCard({ index }: PoolCardProps) {
         );
     }
 
-    const [poolAddress, owner, name] = pool;
-
     return (
-        <Link href={`/pool/${poolAddress}`}>
+        <Link href={`/pool/${pool.poolAddress}`}>
             <Card className="animate-slide-up h-full glass-effect-strong border-2 border-purple-500/20 hover:border-purple-400/60 transition-all hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] group">
                 <div className="flex flex-col h-full">
                     {/* Status Badge & Icon */}
@@ -41,20 +46,20 @@ export default function PoolCard({ index }: PoolCardProps) {
 
                     {/* Pool Info */}
                     <h3 className="text-2xl font-bold mb-4 text-white group-hover:text-purple-300 transition-colors">
-                        {name}
+                        {pool.name}
                     </h3>
 
                     <div className="space-y-3 text-sm grow">
                         <div className="flex justify-between items-center">
                             <span className="text-gray-400">Owner:</span>
                             <span className="text-purple-400 font-mono font-semibold">
-                                {formatAddress(owner)}
+                                {formatAddress(pool.owner)}
                             </span>
                         </div>
                         <div className="flex justify-between items-center">
                             <span className="text-gray-400">Pool Address:</span>
                             <span className="text-cyan-400 font-mono font-semibold">
-                                {formatAddress(poolAddress)}
+                                {formatAddress(pool.poolAddress)}
                             </span>
                         </div>
                     </div>

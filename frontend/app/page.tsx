@@ -2,14 +2,21 @@
 
 import Link from 'next/link';
 import Button from '@/components/ui/Button';
-import { usePoolCount } from '@/hooks/usePoolFactory';
 import PoolCard from '@/components/pool/PoolCard';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import MouseTrackingCard from '@/components/ui/MouseTrackingCard';
+import { useReadContract } from 'wagmi';
+import contract_address from '@/constant/contract_address';
+import { poolFactoryAbi } from '@/constant/abi';
 
 export default function Home() {
-  const { data: poolCount, isLoading } = usePoolCount();
+
+  const { data: poolCount, isLoading } = useReadContract({
+    address: contract_address,
+    abi: poolFactoryAbi,
+    functionName: 'getPoolLength',
+  });
 
   return (
     <div className="min-h-screen relative overflow-hidden">
