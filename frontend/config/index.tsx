@@ -9,7 +9,7 @@ const config = getDefaultConfig({
     appName: "Parisure",
     projectId: projectId,
     chains: [foundry, sepolia],
-    ssr: true
+    ssr: false,
 })
 
 export default config
