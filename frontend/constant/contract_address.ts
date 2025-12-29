@@ -1,3 +1,3 @@
-const contract_address = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+const contract_address = "0xDAC8bb17eD78FEFEb69dfCB8F7D0B5b1c142d088"
 
 export default contract_address
