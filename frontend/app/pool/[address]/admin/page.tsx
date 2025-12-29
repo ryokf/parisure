@@ -13,7 +13,7 @@ import { parisurePoolAbi } from '@/constant/abi';
 
 export default function AdminPage() {
     const params = useParams();
-    const address = params.address as string;
+    const address = params.address as `0x${string}`;
 
     const [isOwner, setIsOwner] = useState(false); // Mock owner check
 
@@ -39,10 +39,6 @@ export default function AdminPage() {
         console.log(userAddress)
         console.log(address)
     }, [userAddress, isConnected, address, isLoading, pool])
-
-    const handleCreatePolicy = async (formData: any) => {
-        alert(`Policy created!\nName: ${formData.name}\nDuration: ${formData.duration} days\nPrice: ${formData.price} ETH`);
-    };
 
     if (!pool) {
         return (
@@ -126,8 +122,8 @@ export default function AdminPage() {
 
                 {/* Add Policy Form */}
                 <CreatePolicyForm
+                    poolAddress={address}
                     poolName={pool[0]}
-                    onSubmit={handleCreatePolicy}
                 />
             </div>
         </div>

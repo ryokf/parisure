@@ -7,13 +7,6 @@ import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { parisurePoolAbi } from '@/constant/abi';
 import { parseEther } from 'viem';
 
-interface PolicyFormData {
-    name: string;
-    duration: number;
-    price: number;
-    [key: string]: string | number;
-}
-
 interface CreatePolicyFormProps {
     poolName: string;
     poolAddress: `0x${string}`;
@@ -21,25 +14,8 @@ interface CreatePolicyFormProps {
 
 export default function CreatePolicyForm({ poolName, poolAddress }: CreatePolicyFormProps) {
     const [isActive, setIsActive] = useState(true);
-    // const [isLoading, setIsLoading] = useState(false);
 
-    // const { values, handleChange, handleSubmit, resetForm } = useForm<PolicyFormData>({
-    //     initialValues: {
-    //         name: '',
-    //         duration: 0,
-    //         price: 0,
-    //     },
-    //     onSubmit: async (formData) => {
-    //         setIsLoading(true);
-    //         try {
-    //             await onSubmit(formData);
-    //             resetForm();
-    //             setIsActive(true);
-    //         } finally {
-    //             setIsLoading(false);
-    //         }
-    //     },
-    // });
+    console.log("pool : " + poolAddress)
 
     const [formData, setFormData] = useState({
         name: "",
