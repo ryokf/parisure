@@ -10,7 +10,6 @@ import BuyPolicyTab from '@/components/pool/BuyPolicyTab';
 import MyDashboardTab from '@/components/pool/MyDashboardTab';
 import GovernanceTab from '@/components/pool/GovernanceTab';
 import {
-    getPoliciesForPool,
     mockMember,
     mockClaims,
 } from '@/lib/mockData';
@@ -20,8 +19,7 @@ import { parisurePoolAbi } from '@/constant/abi';
 
 export default function PoolDetail() {
     const params = useParams();
-    const address = params.address as string;
-    const policies = getPoliciesForPool(address);
+    const address = params.address as `0x${string}`;
 
     const [isOwner, setIsOwner] = useState(false);
 
@@ -86,7 +84,7 @@ export default function PoolDetail() {
     // Tab A: Buy Policy
     const buyPolicyTab = (
         <BuyPolicyTab
-            policies={policies}
+            poolAddress={address}
             onJoinPool={handleJoinPool}
         />
     );
