@@ -38,6 +38,7 @@ export default function AdminPage() {
 
         console.log(userAddress)
         console.log(address)
+        console.log(pool)
     }, [userAddress, isConnected, address, isLoading, pool])
 
     if (!pool) {

@@ -6,6 +6,7 @@ interface Member {
     isActive: boolean;
     joinedAt: string;
     expiredDate: string;
+    targetDate: number;
 }
 
 interface MembershipStatusProps {
@@ -13,6 +14,9 @@ interface MembershipStatusProps {
 }
 
 export default function MembershipStatus({ member }: MembershipStatusProps) {
+
+    console.log(new Date(member.joinedAt))
+
     return (
         <Card hover={false}>
             <div className="flex items-center justify-between mb-8">
@@ -43,7 +47,7 @@ export default function MembershipStatus({ member }: MembershipStatusProps) {
 
             <div className="bg-purple-500/10 rounded-xl p-8">
                 <p className="text-sm text-gray-400 mb-4 text-center">Time Until Expiration</p>
-                <Countdown targetDate={member.expiredDate} />
+                <Countdown targetDate={member.targetDate} />
             </div>
         </Card>
     );

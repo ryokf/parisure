@@ -9,6 +9,7 @@ import Tabs from '@/components/ui/Tabs';
 import BuyPolicyTab from '@/components/pool/BuyPolicyTab';
 import MyDashboardTab from '@/components/pool/MyDashboardTab';
 import GovernanceTab from '@/components/pool/GovernanceTab';
+import MemberListTab from '@/components/pool/MemberListTab';
 import {
     mockMember,
     mockClaims,
@@ -92,9 +93,8 @@ export default function PoolDetail() {
     // Tab B: My Dashboard
     const myDashboardTab = (
         <MyDashboardTab
-            isMember={isOwner}
-            member={mockMember}
             onSubmitClaim={handleSubmitClaim}
+            poolAddress={address}
         />
     );
 
@@ -107,10 +107,16 @@ export default function PoolDetail() {
         />
     );
 
+    // Tab D: Members
+    const membersTab = (
+        <MemberListTab poolAddress={address} />
+    );
+
     const tabs = [
         { id: 'buy', label: 'Buy Policy', content: buyPolicyTab },
         { id: 'dashboard', label: 'My Dashboard', content: myDashboardTab },
         { id: 'governance', label: 'Governance', content: governanceTab },
+        { id: 'members', label: 'Members', content: membersTab },
     ];
 
     return (

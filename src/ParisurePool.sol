@@ -50,7 +50,11 @@ contract ParisurePool {
     mapping(uint256 claimId => mapping(address member => bool hasVoted))
         public s_voters;
 
-    function getPoolDetail() public view returns(string memory, uint256, uint256, address) {
+    function getPoolDetail()
+        public
+        view
+        returns (string memory, uint256, uint256, address)
+    {
         return (s_name, s_waitingPeriod, s_maxCoverageAmount, i_owner);
     }
 
@@ -96,6 +100,10 @@ contract ParisurePool {
         }
 
         emit MemberJoined(msg.sender, _policyId, block.timestamp);
+    }
+
+    function getMemberCount() public view returns (uint256) {
+        return s_memberId.length;
     }
 
     function getMember(

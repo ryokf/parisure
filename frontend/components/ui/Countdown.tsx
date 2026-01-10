@@ -23,6 +23,8 @@ export default function Countdown({ targetDate }: CountdownProps) {
         seconds: 0,
     });
 
+    console.log(targetDate)
+
     useEffect(() => {
         const calculateTimeLeft = () => {
             const difference = targetDate - Date.now();
