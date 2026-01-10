@@ -143,6 +143,10 @@ contract ParisurePool {
         emit ClaimSubmitted(msg.sender, claimCount, _evidenceUrl);
     }
 
+    function getClaimsCount() public view returns(uint256) {
+        return s_claims.length;
+    }
+
     function voteClaim(uint256 _claimId, bool vote) public {
         PoolLib.Member memory member = s_members[msg.sender];
 

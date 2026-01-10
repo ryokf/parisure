@@ -35,11 +35,6 @@ export default function MyDashboardTab({ onSubmitClaim, poolAddress }: MyDashboa
         }
     }, [member])
 
-
-    console.log(memberData)
-    console.log(userAddress)
-    console.log(memberData)
-
     if (!memberData[0]) {
         return (
             <Card hover={false} className="text-center py-12">
@@ -69,7 +64,7 @@ export default function MyDashboardTab({ onSubmitClaim, poolAddress }: MyDashboa
 
                 }} 
             />
-            <ClaimForm onSubmit={onSubmitClaim} />
+            <ClaimForm onSubmit={onSubmitClaim} poolAddress={poolAddress} />
         </div>
     );
 }

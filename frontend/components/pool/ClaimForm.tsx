@@ -1,22 +1,42 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
+import { parisurePoolAbi } from '@/constant/abi';
 
 interface ClaimFormProps {
-    onSubmit: (description: string, photoUrl: string) => void;
+    onSubmit: (description: string, poolAddress: string) => void;
 }
 
-export default function ClaimForm({ onSubmit }: ClaimFormProps) {
+// https://www.oto.com/en/mobil-yang-akan-datang
+
+export default function ClaimForm({ onSubmit, poolAddress }: ClaimFormProps) {
     const [claimDescription, setClaimDescription] = useState('');
-    const [claimPhotoUrl, setClaimPhotoUrl] = useState('');
+    const [claimPhotoUrl, setClaimPhotoUrl] = useState("https://www.oto.com/en/mobil-yang-akan-datang");
+
+    const { data: hash, writeContract } = useWriteContract()
+
+    const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash })
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit(claimDescription, claimPhotoUrl);
+        writeContract({
+            address: poolAddress,
+            abi: parisurePoolAbi,
+            functionName: 'submitClaim',
+            args: [claimPhotoUrl, claimDescription]
+        })
+
         setClaimDescription('');
         setClaimPhotoUrl('');
     };
+
+    useEffect(() => {
+        if (isSuccess) {
+            onSubmit(claimDescription, claimPhotoUrl);
+        }
+    }, [isSuccess, claimDescription, claimPhotoUrl, onSubmit])
 
     return (
         <Card hover={false}>
@@ -37,7 +57,7 @@ export default function ClaimForm({ onSubmit }: ClaimFormProps) {
                     placeholder="https://ipfs.io/ipfs/..."
                     value={claimPhotoUrl}
                     onChange={(e) => setClaimPhotoUrl(e.target.value)}
-                    required
+                // required
                 />
 
                 <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">

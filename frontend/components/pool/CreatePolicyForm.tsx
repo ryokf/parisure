@@ -25,7 +25,7 @@ export default function CreatePolicyForm({ poolName, poolAddress }: CreatePolicy
         price: ""
     })
 
-    const { data: hash, isPending, writeContract } = useWriteContract()
+    const { data: hash, writeContract } = useWriteContract()
 
     const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash })
 

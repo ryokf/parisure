@@ -27,6 +27,13 @@ export const parisurePoolAbi = [
   },
   {
     type: 'function',
+    inputs: [],
+    name: 'getClaimsCount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [{ name: '_id', internalType: 'uint256', type: 'uint256' }],
     name: 'getMember',
     outputs: [
@@ -42,6 +49,13 @@ export const parisurePoolAbi = [
         ],
       },
     ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getMemberCount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
   },
   {

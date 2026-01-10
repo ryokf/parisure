@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { formatDuration } from '@/services/formatting/formatters';
-import { useReadContract } from 'wagmi';
+import { useAccount, useReadContract } from 'wagmi';
 import { parisurePoolAbi } from '@/constant/abi';
 import PolicyCard from './PolicyCard';
 
@@ -24,6 +24,33 @@ export default function BuyPolicyTab({ poolAddress, onJoinPool }: BuyPolicyTabPr
         abi: parisurePoolAbi,
         functionName: 'getPolicyCount'
     })
+
+    console.log("policy count: " + policyCount)
+
+    const { address: userAddress, isConnected } = useAccount()
+    const [memberData, setMemberData] = useState([
+        false, 0, 0, 0
+    ])
+
+    const { data: member } = useReadContract({
+        address: poolAddress,
+        abi: parisurePoolAbi,
+        functionName: 's_members',
+        args: [userAddress],
+        query: {
+            enabled: isConnected && !!userAddress
+        }
+    })
+
+    useEffect(() => {
+        if (member) {
+            setMemberData(member)
+        }
+    }, [member])
+
+    if(memberData[0]){
+        return "y"
+    }
 
     return (
         <div className="space-y-8">
